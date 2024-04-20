@@ -15,6 +15,10 @@ def convert_line_to_clock(number):
     second = number % 10
     str = f'{hour}:{minute:02d}:{second:02d}'
     need_skip = True if minute >= 60 else False
+    if hour >= 24:
+        global line
+        line = 0
+        need_skip = True
     return str, need_skip
 
 while True:
