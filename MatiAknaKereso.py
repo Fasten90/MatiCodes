@@ -114,13 +114,26 @@ class Application(tk.Frame):
         print('Exit button')
         self.quit()
 
+
     def button_calculate_event(self):
         print('Calculate button')
-        
+        global table_list
+        for row_i, row in enumerate(table_list):
+            for column_i, cell in enumerate(row):
+                if cell == 'X':
+                    continue
+                elif cell != 'X':
+                    # Check neightboor X-s
+                    akna = 0
+                    for row_calc in range(max(row_i-1, 0), min(row_i+1, row_count-1) + 1):
+                        for column_calc in range(max(column_i-1, 0), min(column_i+1, column_count-1) + 1):
+                            if table_list[row_calc][column_calc] == 'X':
+                                akna +=1
+                    table_list[row_i][column_i] = akna
+
 
     def button_play_event(self):
         print('Play button')
-        self.e.grid(row=i, column=j)
 
 
     def quit(self):
