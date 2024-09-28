@@ -13,6 +13,7 @@ root = None
 app = None
 
 table_list = []
+table_list_displaying = []
 table_objects = None
 
 row_count = None
@@ -27,9 +28,9 @@ def callback(event):
     if name == '!entry':
         name = '!entry1'
     index = name.split('!entry')[1]
-    index = int(index)
+    index = int(index) - 1
     row = math.floor(index / column_count)
-    column = index % row_count
+    column = index % row_count 
     print(f'It is row {row} column {column}')
     table_list[row][column] = 'X'
     #event.widget.config(text='x')
@@ -67,14 +68,17 @@ class Application(tk.Frame):
         global table_list
         #table_list = [['0'] * column_count].copy() * row_count # TRAP
         table_list =[ [0]*column_count for i in range(row_count)]
+        global table_list_displaying
+        table_list_displaying = [ [0]*column_count for i in range(row_count)]
 
         # code for creating table
         for i in range(row_count):
             for j in range(column_count):
                 #self.e = tk.Entry(root, width=20, fg='blue',
                 #self.e =
+                table_list_displaying[i][j] = tk.StringVar()
                 table_objects[i][j] = tk.Entry(self, width=1, fg='blue',
-                            font=('Arial',16,'bold'))
+                            font=('Arial',16,'bold'), textvariable=table_list_displaying[i][j])
                 # https://stackoverflow.com/questions/61225793/tkinter-click-event-highlights-the-label-clicked
                 #self.label = tk.Label(self, text=table_values[i][0], width=10, justify='left', bg='white')
                 #self.e =
@@ -104,12 +108,6 @@ class Application(tk.Frame):
         self.button_5.grid(row=exit_row, column=exit_colum+2)  # View
 
 
-    def button_add_event(self):
-        print('Add button')
-        lines = self.entry_qr.get("0.0", tk.END)  # TODO: Check which line needed... or clear needed
-        print(f'Lines: "{lines}"')
-        self.add_item(lines)
-
     def button_exit_event(self):
         print('Exit button')
         self.quit()
@@ -130,6 +128,16 @@ class Application(tk.Frame):
                             if table_list[row_calc][column_calc] == 'X':
                                 akna +=1
                     table_list[row_i][column_i] = akna
+        # TODO: Temporary
+        self.display_aknas()
+
+
+    def display_aknas(self):
+        # code for creating table
+        for i in range(row_count):
+            for j in range(column_count):
+                value = table_list[i][j]
+                table_list_displaying[i][j].set(value)
 
 
     def button_play_event(self):
