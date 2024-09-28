@@ -95,7 +95,12 @@ class Application(tk.Frame):
         self.button_3 = tk.Button(self, width=1, height=1)
         self.button_3["text"] = "X"
         self.button_3["command"] = self.button_exit_event
-        self.button_3.grid(row=exit_row, column=exit_colum)  # View
+        self.button_3.grid(row=exit_row, column=exit_colum-1)  # View
+
+        self.button_new = tk.Button(self, width=1, height=1)
+        self.button_new["text"] = "N"
+        self.button_new["command"] = self.button_new
+        self.button_new.grid(row=exit_row, column=exit_colum)  # View
 
         self.button_4 = tk.Button(self, width=1, height=1)
         self.button_4["text"] = "C"
@@ -106,6 +111,11 @@ class Application(tk.Frame):
         self.button_5["text"] = "P"
         self.button_5["command"] = self.button_play_event
         self.button_5.grid(row=exit_row, column=exit_colum+2)  # View
+
+        self.button_6 = tk.Button(self, width=1, height=1)
+        self.button_6["text"] = "D"
+        self.button_6["command"] = self.display_aknas
+        self.button_6.grid(row=exit_row, column=exit_colum+3)  # View
 
 
     def button_exit_event(self):
@@ -128,8 +138,6 @@ class Application(tk.Frame):
                             if table_list[row_calc][column_calc] == 'X':
                                 akna +=1
                     table_list[row_i][column_i] = akna
-        # TODO: Temporary
-        self.display_aknas()
 
 
     def display_aknas(self):
@@ -142,6 +150,9 @@ class Application(tk.Frame):
 
     def button_play_event(self):
         print('Play button')
+
+    def button_new(self):
+        print('New button')
 
 
     def quit(self):
