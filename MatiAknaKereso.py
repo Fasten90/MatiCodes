@@ -19,11 +19,12 @@ table_objects = None
 row_count = None
 column_count = None
 
+is_play_mode = False
+
 
 # https://blog.furas.pl/python-tkinter-how-to-set-size-for-empty-row-or-column-in-grid-gb.html
 
 def callback(event):
-    event.widget.config(bg='blue')
     name = event.widget._name
     if name == '!entry':
         name = '!entry1'
@@ -32,8 +33,15 @@ def callback(event):
     row = math.floor(index / column_count)
     column = index % row_count 
     print(f'It is row {row} column {column}')
-    table_list[row][column] = 'X'
-    #event.widget.config(text='x')
+    if not is_play_mode:
+        # Editor mode
+        event.widget.config(bg='blue')
+        table_list[row][column] = 'X'
+        #event.widget.config(text='x')
+    else:
+        # Play mode
+        value = table_list[row][column]
+        table_list_displaying[row][column].set(value)
 
 
 class Application(tk.Frame):
@@ -148,36 +156,32 @@ class Application(tk.Frame):
                 table_list_displaying[i][j].set(value)
 
 
+    def clear_table(self):
+        # code for creating table
+        for i in range(row_count):
+            for j in range(column_count):
+                value = table_list[i][j]
+                table_list_displaying[i][j].set('')
+                table_objects[i][j].config(bg='white')
+
+
     def button_play_event(self):
         print('Play button')
+        self.clear_table()
+        global is_play_mode
+        is_play_mode = True
+
 
     def button_new(self):
         print('New button')
+        self.clear_table()
+        global is_play_mode
+        is_play_mode = False
 
 
     def quit(self):
         self.master.destroy()
         exit(0)
-
-
-    def entry_changed_input(self, event):
-        """ Called at newlines"""
-        print(f'entry_changed_input: {event}')
-
-        #content = self.entry_qr.get()  # entry
-        content = self.entry_qr.get("0.0", tk.END)
-        print(f'Content: {content}')
-        if '\n' not in content:
-            return
-        lines = content.split('\n')
-        lines = [item.strip() for item in lines]
-        for new_line in lines:
-            if len(new_line) == 0:
-                continue
-            # Item LETS GO
-            print(f'Find new line: {new_line}')
-            # TODO
-        self.entry_qr.delete("0.0", tk.END)
 
 
 def start_gui(config=None):
