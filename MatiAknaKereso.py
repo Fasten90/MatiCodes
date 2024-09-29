@@ -38,8 +38,16 @@ def callback(event):
     print(f'It is row {row} column {column}')
     if not is_play_mode:
         # Editor mode
-        event.widget.config(bg='blue')
-        table_list[row][column] = 'X'
+        if table_list[row][column] != 'X':
+            # Clicking firstly / mark as bomb
+            table_list[row][column] = 'X'
+            table_list_displaying[row][column].set('X')
+            event.widget.config(bg='blue')
+        else:
+            # Click again? Remove the bomb
+            table_list[row][column] = 0
+            table_list_displaying[row][column].set('')
+            event.widget.config(bg='white')
         #event.widget.config(text='x')  # Does not work
     else:
         # Play mode
@@ -156,7 +164,6 @@ class Application(tk.Frame):
 
     def clear_table(self, remove=False):
         # code for creating table
-        #global table_list_displaying
         global  table_list
         for i in range(row_count):
             for j in range(column_count):
