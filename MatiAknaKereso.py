@@ -10,7 +10,7 @@ import math
 
 
 FLAG_CHARACTER = "🚩"  # Unicode character. PANIC STARTED
-
+BACKGROUND_COLOR = 'black'
 
 root = None
 app = None
@@ -199,6 +199,7 @@ def start_gui(config=None):
     root = tk.Tk()
     root.attributes('-fullscreen', True)
     app = Application(master=root)
+    root.configure(bg=BACKGROUND_COLOR)
     app.mainloop()
 
 
