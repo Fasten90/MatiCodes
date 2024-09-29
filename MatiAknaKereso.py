@@ -9,6 +9,9 @@ from enum import Enum
 import math
 
 
+FLAG_CHARACTER = "🚩"  # Unicode character. PANIC STARTED
+
+
 root = None
 app = None
 
@@ -37,11 +40,17 @@ def callback(event):
         # Editor mode
         event.widget.config(bg='blue')
         table_list[row][column] = 'X'
-        #event.widget.config(text='x')
+        #event.widget.config(text='x')  # Does not work
     else:
         # Play mode
         value = table_list[row][column]
-        table_list_displaying[row][column].set(value)
+        # Check what is in the display:
+        if table_list_displaying[row][column].get() != FLAG_CHARACTER:
+            # First situation: FLAG
+            table_list_displaying[row][column].set(FLAG_CHARACTER)
+        else:
+            # Second situation: What is under on the flag :) BUMMMMMMM
+            table_list_displaying[row][column].set(value)
 
 
 class Application(tk.Frame):
@@ -53,10 +62,6 @@ class Application(tk.Frame):
 
 
     def create_widgets(self):
-
-        # Specials
-        #global gui_variable_status
-        #gui_variable_status = tk.StringVar(value='Status')
 
         # Title
         title_font = ('Arial', 20, 'bold')
@@ -82,48 +87,40 @@ class Application(tk.Frame):
         # code for creating table
         for i in range(row_count):
             for j in range(column_count):
-                #self.e = tk.Entry(root, width=20, fg='blue',
-                #self.e =
                 table_list_displaying[i][j] = tk.StringVar()
                 table_objects[i][j] = tk.Entry(self, width=1, fg='blue',
                             font=('Arial',16,'bold'), textvariable=table_list_displaying[i][j])
                 # https://stackoverflow.com/questions/61225793/tkinter-click-event-highlights-the-label-clicked
-                #self.label = tk.Label(self, text=table_values[i][0], width=10, justify='left', bg='white')
-                #self.e =
                 table_objects[i][j].bind("<Button-1>", callback)
-                #self.label.grid(row=i+1, column=0)
-                #self.e =
                 table_objects[i][j].grid(row=i, column=j)
-                #self.e.columnconfigure(0, weight=1)
-                #w.columnconfigure(1, weight=1)
-                #self.e.insert(tk.END, lst[i][j])
 
-        exit_colum = math.floor(column_count /2 )
-        exit_row = row_count + 1
-        self.button_3 = tk.Button(self, width=1, height=1)
-        self.button_3["text"] = "X"
-        self.button_3["command"] = self.button_exit_event
-        self.button_3.grid(row=exit_row, column=exit_colum-1)  # View
+        button_colum = math.floor(column_count /2 )
+        button_row = row_count + 2
 
         self.button_new = tk.Button(self, width=1, height=1)
         self.button_new["text"] = "N"
-        self.button_new["command"] = self.button_new
-        self.button_new.grid(row=exit_row, column=exit_colum)  # View
+        self.button_new["command"] = self.button_new_event
+        self.button_new.grid(row=button_row, column=button_colum-2)
 
-        self.button_4 = tk.Button(self, width=1, height=1)
-        self.button_4["text"] = "C"
-        self.button_4["command"] = self.button_calculate_event
-        self.button_4.grid(row=exit_row, column=exit_colum+1)  # View
+        self.button_calculate = tk.Button(self, width=1, height=1)
+        self.button_calculate["text"] = "C"
+        self.button_calculate["command"] = self.button_calculate_event
+        self.button_calculate.grid(row=button_row, column=button_colum)
 
-        self.button_5 = tk.Button(self, width=1, height=1)
-        self.button_5["text"] = "P"
-        self.button_5["command"] = self.button_play_event
-        self.button_5.grid(row=exit_row, column=exit_colum+2)  # View
+        self.button_display_aknas = tk.Button(self, width=1, height=1)
+        self.button_display_aknas["text"] = "D"
+        self.button_display_aknas["command"] = self.display_aknas
+        self.button_display_aknas.grid(row=button_row, column=button_colum+1)
 
-        self.button_6 = tk.Button(self, width=1, height=1)
-        self.button_6["text"] = "D"
-        self.button_6["command"] = self.display_aknas
-        self.button_6.grid(row=exit_row, column=exit_colum+3)  # View
+        self.button_play = tk.Button(self, width=1, height=1)
+        self.button_play["text"] = "P"
+        self.button_play["command"] = self.button_play_event
+        self.button_play.grid(row=button_row, column=button_colum+2)
+
+        self.button_exit = tk.Button(self, width=1, height=1)
+        self.button_exit["text"] = "X"
+        self.button_exit["command"] = self.button_exit_event
+        self.button_exit.grid(row=button_row, column=button_colum+4)
 
 
     def button_exit_event(self):
@@ -150,31 +147,36 @@ class Application(tk.Frame):
 
     def display_aknas(self):
         # code for creating table
+        global table_list_displaying
         for i in range(row_count):
             for j in range(column_count):
                 value = table_list[i][j]
                 table_list_displaying[i][j].set(value)
 
 
-    def clear_table(self):
+    def clear_table(self, remove=False):
         # code for creating table
+        #global table_list_displaying
+        global  table_list
         for i in range(row_count):
             for j in range(column_count):
-                value = table_list[i][j]
+                if remove:
+                    table_list[i][j] = 0
+                # Clear displayed text + background
                 table_list_displaying[i][j].set('')
                 table_objects[i][j].config(bg='white')
 
 
     def button_play_event(self):
         print('Play button')
-        self.clear_table()
+        self.clear_table(remove=False)
         global is_play_mode
         is_play_mode = True
 
 
-    def button_new(self):
+    def button_new_event(self):
         print('New button')
-        self.clear_table()
+        self.clear_table(remove=True)
         global is_play_mode
         is_play_mode = False
 
