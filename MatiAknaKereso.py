@@ -9,7 +9,9 @@ from enum import Enum
 import math
 
 
-FLAG_CHARACTER = "🚩"  # Unicode character. PANIC STARTED
+#FLAG_CHARACTER = "🚩"  # Unicode character. PANIC STARTED
+FLAG_CHARACTER = "|>"  # for mobile
+
 BACKGROUND_COLOR = 'black'
 
 root = None
@@ -102,33 +104,33 @@ class Application(tk.Frame):
                 table_objects[i][j].bind("<Button-1>", callback)
                 table_objects[i][j].grid(row=i, column=j)
 
-        button_colum = math.floor(column_count /2 )
+        #button_colum = math.floor(column_count /2 )
         button_row = row_count + 2
 
         self.button_new = tk.Button(self, width=1, height=1)
         self.button_new["text"] = "N"
         self.button_new["command"] = self.button_new_event
-        self.button_new.grid(row=button_row, column=button_colum-2)
+        self.button_new.grid(row=button_row, column=0, columnspan=3)
 
         self.button_calculate = tk.Button(self, width=1, height=1)
         self.button_calculate["text"] = "C"
         self.button_calculate["command"] = self.button_calculate_event
-        self.button_calculate.grid(row=button_row, column=button_colum)
+        self.button_calculate.grid(row=button_row, column=3, columnspan=2)
 
         self.button_display_aknas = tk.Button(self, width=1, height=1)
         self.button_display_aknas["text"] = "D"
         self.button_display_aknas["command"] = self.display_aknas
-        self.button_display_aknas.grid(row=button_row, column=button_colum+1)
+        self.button_display_aknas.grid(row=button_row, column=5, columnspan=2)
 
         self.button_play = tk.Button(self, width=1, height=1)
         self.button_play["text"] = "P"
         self.button_play["command"] = self.button_play_event
-        self.button_play.grid(row=button_row, column=button_colum+2)
+        self.button_play.grid(row=button_row, column=7, columnspan=2)
 
         self.button_exit = tk.Button(self, width=1, height=1)
         self.button_exit["text"] = "X"
         self.button_exit["command"] = self.button_exit_event
-        self.button_exit.grid(row=button_row, column=button_colum+4)
+        self.button_exit.grid(row=button_row, column=10, columnspan=2)
 
 
     def button_exit_event(self):
