@@ -6,12 +6,18 @@ from tkinter.font import *
 import math
 
 
+# Extreme static variables
 #FLAG_CHARACTER = "🚩"  # Unicode character. PANIC STARTED
 FLAG_CHARACTER = "|>"  # for mobile
 BOMB_IN_EDITOR_MODE = 'X'
 
 BACKGROUND_COLOR = 'black'
 
+# Settings (static) variables
+row_count = 12
+column_count = 12
+
+# Dynamic variables
 root = None
 app = None
 
@@ -19,15 +25,14 @@ table_list = []
 table_list_displaying = []
 table_objects = None
 
-row_count = 2
-column_count = 12
-
 is_play_mode = False
+bomb_count = 0
 
 
 # https://blog.furas.pl/python-tkinter-how-to-set-size-for-empty-row-or-column-in-grid-gb.html
 
 def callback(event):
+    global bomb_count
     name = event.widget._name
     if name == '!entry':
         name = '!entry1'
@@ -43,11 +48,13 @@ def callback(event):
             table_list[row][column] = BOMB_IN_EDITOR_MODE
             table_list_displaying[row][column].set(BOMB_IN_EDITOR_MODE)
             event.widget.config(bg='blue')
+            bomb_count += 1
         else:
             # Click again? Remove the bomb
             table_list[row][column] = 0
             table_list_displaying[row][column].set('')
             event.widget.config(bg='white')
+            bomb_count -= 1
         #event.widget.config(text='x')  # Does not work
     else:
         # Play mode
@@ -56,10 +63,14 @@ def callback(event):
         if table_list_displaying[row][column].get() != FLAG_CHARACTER:
             # First situation: FLAG
             table_list_displaying[row][column].set(FLAG_CHARACTER)
+            bomb_count -= 1
         else:
             # Second situation: What is under on the flag :) BUMMMMMMM
             table_list_displaying[row][column].set(value)
+            bomb_count += 1
         check_if_finish()
+    global app
+    app.bomb_count_field["text"] = '{:02}'.format(bomb_count)
 
 
 def check_if_finish():
@@ -142,9 +153,13 @@ class Application(tk.Frame):
         self.button_exit["command"] = self.button_exit_event
         self.button_exit.grid(row=button_row, column=10, columnspan=2)
 
+        self.bomb_count_field = tk.Label(self, height=1)
+        self.bomb_count_field["text"] = "00"
+        self.bomb_count_field.grid(row=button_row+1, column=0, columnspan=column_count)
+
         self.message_field = tk.Label(self, height=1)
         self.message_field["text"] = ""
-        self.message_field.grid(row=button_row+1, column=0, columnspan=column_count)
+        self.message_field.grid(row=button_row+2, column=0, columnspan=column_count)
 
 
     def button_exit_event(self):
@@ -202,6 +217,8 @@ class Application(tk.Frame):
         self.clear_table(remove=True)
         global is_play_mode
         is_play_mode = False
+        global bomb_count
+        bomb_count = 0
 
 
     def quit(self):
