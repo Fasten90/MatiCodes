@@ -2,15 +2,13 @@
 
 #https://docs.python.org/3.7/library/tkinter.html
 import tkinter as tk
-# For Font
 from tkinter.font import *
-from PIL import Image
-from enum import Enum
 import math
 
 
 #FLAG_CHARACTER = "🚩"  # Unicode character. PANIC STARTED
 FLAG_CHARACTER = "|>"  # for mobile
+BOMB_IN_EDITOR_MODE = 'X'
 
 BACKGROUND_COLOR = 'black'
 
@@ -21,8 +19,8 @@ table_list = []
 table_list_displaying = []
 table_objects = None
 
-row_count = None
-column_count = None
+row_count = 2
+column_count = 12
 
 is_play_mode = False
 
@@ -36,14 +34,14 @@ def callback(event):
     index = name.split('!entry')[1]
     index = int(index) - 1
     row = math.floor(index / column_count)
-    column = index % row_count 
+    column = index % column_count
     print(f'It is row {row} column {column}')
     if not is_play_mode:
         # Editor mode
-        if table_list[row][column] != 'X':
+        if table_list[row][column] != BOMB_IN_EDITOR_MODE:
             # Clicking firstly / mark as bomb
-            table_list[row][column] = 'X'
-            table_list_displaying[row][column].set('X')
+            table_list[row][column] = BOMB_IN_EDITOR_MODE
+            table_list_displaying[row][column].set(BOMB_IN_EDITOR_MODE)
             event.widget.config(bg='blue')
         else:
             # Click again? Remove the bomb
@@ -61,6 +59,29 @@ def callback(event):
         else:
             # Second situation: What is under on the flag :) BUMMMMMMM
             table_list_displaying[row][column].set(value)
+        check_if_finish()
+
+
+def check_if_finish():
+    # Check if all field contains clicked value:
+    for i in range(row_count):
+        for j in range(column_count):
+            value_of_display_field = table_list_displaying[i][j].get()
+            expected_value = str(table_list[i][j])  # Convert the 1 to '1'
+            if value_of_display_field == '':
+                # Contains empty - not clicked field. The game has not finished yet
+                return False
+            elif value_of_display_field == expected_value:
+                # Value
+                continue
+            elif value_of_display_field == FLAG_CHARACTER and expected_value == BOMB_IN_EDITOR_MODE:
+                # Bomb field
+                continue
+            else:
+                return False
+    app.message_field["text"] = 'Win!'
+    return True
+
 
 
 class Application(tk.Frame):
@@ -72,17 +93,6 @@ class Application(tk.Frame):
 
 
     def create_widgets(self):
-
-        # Title
-        title_font = ('Arial', 20, 'bold')
-        self.title_label = tk.Label(self, text="Mati AknaKereso", font=title_font)
-        #self.title_label.grid(row=0, column=0)  # View
-
-        global row_count
-        global column_count
-
-        row_count = 12
-        column_count = 12
 
         global table_objects
         #table_objects = [['0'] * column_count].copy() * row_count  # TRAP
@@ -131,6 +141,10 @@ class Application(tk.Frame):
         self.button_exit["text"] = "X"
         self.button_exit["command"] = self.button_exit_event
         self.button_exit.grid(row=button_row, column=10, columnspan=2)
+
+        self.message_field = tk.Label(self, height=1)
+        self.message_field["text"] = ""
+        self.message_field.grid(row=button_row+1, column=0, columnspan=column_count)
 
 
     def button_exit_event(self):
@@ -197,6 +211,7 @@ class Application(tk.Frame):
 
 def start_gui(config=None):
     global root
+    global app
 
     root = tk.Tk()
     root.attributes('-fullscreen', True)
