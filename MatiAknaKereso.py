@@ -18,7 +18,6 @@ column_count = 12
 
 # Dynamic variables
 root = None
-app = None
 
 table_list = []
 table_list_displaying = []
@@ -69,8 +68,7 @@ def callback(event):
             table_list_displaying[row][column].set(value)
             bomb_count += 1
         check_if_finish()
-    global app
-    app.bomb_count_field["text"] = '{:02}'.format(bomb_count)
+    bomb_count_field["text"] = '{:02}'.format(bomb_count)
 
 
 def check_if_finish():
@@ -90,10 +88,8 @@ def check_if_finish():
                 continue
             else:
                 return False
-    app.message_field["text"] = 'Win!'
+    message_field["text"] = 'Win!'
     return True
-
-
 
 
 def button_exit_event():
