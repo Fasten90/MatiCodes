@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-#https://docs.python.org/3.7/library/tkinter.html
 import tkinter as tk
 from tkinter.font import *
 import math
@@ -14,7 +13,7 @@ BOMB_IN_EDITOR_MODE = 'X'
 BACKGROUND_COLOR = 'black'
 
 # Settings (static) variables
-row_count = 12
+row_count = 9
 column_count = 12
 
 # Dynamic variables
@@ -29,7 +28,8 @@ is_play_mode = False
 bomb_count = 0
 
 
-# https://blog.furas.pl/python-tkinter-how-to-set-size-for-empty-row-or-column-in-grid-gb.html
+root = tk.Tk()
+
 
 def callback(event):
     global bomb_count
@@ -95,148 +95,124 @@ def check_if_finish():
 
 
 
-class Application(tk.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        self.pack()
-        self.create_widgets()
+
+def button_exit_event():
+    print('Exit button')
+    quit()
 
 
-    def create_widgets(self):
-
-        global table_objects
-        #table_objects = [['0'] * column_count].copy() * row_count  # TRAP
-        table_objects = [ [0]*column_count for i in range(row_count)]
-
-        global table_list
-        #table_list = [['0'] * column_count].copy() * row_count # TRAP
-        table_list =[ [0]*column_count for i in range(row_count)]
-        global table_list_displaying
-        table_list_displaying = [ [0]*column_count for i in range(row_count)]
-
-        # code for creating table
-        for i in range(row_count):
-            for j in range(column_count):
-                table_list_displaying[i][j] = tk.StringVar()
-                table_objects[i][j] = tk.Entry(self, width=1, fg='blue',
-                            font=('Arial',16,'bold'), textvariable=table_list_displaying[i][j])
-                # https://stackoverflow.com/questions/61225793/tkinter-click-event-highlights-the-label-clicked
-                table_objects[i][j].bind("<Button-1>", callback)
-                table_objects[i][j].grid(row=i, column=j)
-
-        #button_colum = math.floor(column_count /2 )
-        button_row = row_count + 2
-
-        self.button_new = tk.Button(self, width=1, height=1)
-        self.button_new["text"] = "N"
-        self.button_new["command"] = self.button_new_event
-        self.button_new.grid(row=button_row, column=0, columnspan=3)
-
-        self.button_calculate = tk.Button(self, width=1, height=1)
-        self.button_calculate["text"] = "C"
-        self.button_calculate["command"] = self.button_calculate_event
-        self.button_calculate.grid(row=button_row, column=3, columnspan=2)
-
-        self.button_display_aknas = tk.Button(self, width=1, height=1)
-        self.button_display_aknas["text"] = "D"
-        self.button_display_aknas["command"] = self.display_aknas
-        self.button_display_aknas.grid(row=button_row, column=5, columnspan=2)
-
-        self.button_play = tk.Button(self, width=1, height=1)
-        self.button_play["text"] = "P"
-        self.button_play["command"] = self.button_play_event
-        self.button_play.grid(row=button_row, column=7, columnspan=2)
-
-        self.button_exit = tk.Button(self, width=1, height=1)
-        self.button_exit["text"] = "X"
-        self.button_exit["command"] = self.button_exit_event
-        self.button_exit.grid(row=button_row, column=10, columnspan=2)
-
-        self.bomb_count_field = tk.Label(self, height=1)
-        self.bomb_count_field["text"] = "00"
-        self.bomb_count_field.grid(row=button_row+1, column=0, columnspan=column_count)
-
-        self.message_field = tk.Label(self, height=1)
-        self.message_field["text"] = ""
-        self.message_field.grid(row=button_row+2, column=0, columnspan=column_count)
+def button_calculate_event():
+    print('Calculate button')
+    global table_list
+    for row_i, row in enumerate(table_list):
+        for column_i, cell in enumerate(row):
+            if cell == 'X':
+                continue
+            elif cell != 'X':
+                # Check neightboor X-s
+                akna = 0
+                for row_calc in range(max(row_i-1, 0), min(row_i+1, row_count-1) + 1):
+                    for column_calc in range(max(column_i-1, 0), min(column_i+1, column_count-1) + 1):
+                        if table_list[row_calc][column_calc] == 'X':
+                            akna +=1
+                table_list[row_i][column_i] = akna
 
 
-    def button_exit_event(self):
-        print('Exit button')
-        self.quit()
+def display_aknas():
+    # code for creating table
+    global table_list_displaying
+    for i in range(row_count):
+        for j in range(column_count):
+            value = table_list[i][j]
+            table_list_displaying[i][j].set(value)
 
 
-    def button_calculate_event(self):
-        print('Calculate button')
-        global table_list
-        for row_i, row in enumerate(table_list):
-            for column_i, cell in enumerate(row):
-                if cell == 'X':
-                    continue
-                elif cell != 'X':
-                    # Check neightboor X-s
-                    akna = 0
-                    for row_calc in range(max(row_i-1, 0), min(row_i+1, row_count-1) + 1):
-                        for column_calc in range(max(column_i-1, 0), min(column_i+1, column_count-1) + 1):
-                            if table_list[row_calc][column_calc] == 'X':
-                                akna +=1
-                    table_list[row_i][column_i] = akna
+def clear_table(remove=False):
+    # code for creating table
+    global  table_list
+    for i in range(row_count):
+        for j in range(column_count):
+            if remove:
+                table_list[i][j] = 0
+            # Clear displayed text + background
+            table_list_displaying[i][j].set('')
+            table_objects[i][j].config(bg='white')
 
 
-    def display_aknas(self):
-        # code for creating table
-        global table_list_displaying
-        for i in range(row_count):
-            for j in range(column_count):
-                value = table_list[i][j]
-                table_list_displaying[i][j].set(value)
+def button_play_event():
+    print('Play button')
+    clear_table(remove=False)
+    global is_play_mode
+    is_play_mode = True
 
 
-    def clear_table(self, remove=False):
-        # code for creating table
-        global  table_list
-        for i in range(row_count):
-            for j in range(column_count):
-                if remove:
-                    table_list[i][j] = 0
-                # Clear displayed text + background
-                table_list_displaying[i][j].set('')
-                table_objects[i][j].config(bg='white')
+def button_new_event():
+    print('New button')
+    clear_table(remove=True)
+    global is_play_mode
+    is_play_mode = False
+    global bomb_count
+    bomb_count = 0
 
 
-    def button_play_event(self):
-        print('Play button')
-        self.clear_table(remove=False)
-        global is_play_mode
-        is_play_mode = True
+def quit():
+    root.destroy()
+    exit(0)
+
+#table_objects = [['0'] * column_count].copy() * row_count  # TRAP
+table_objects = [ [0]*column_count for i in range(row_count)]
 
 
-    def button_new_event(self):
-        print('New button')
-        self.clear_table(remove=True)
-        global is_play_mode
-        is_play_mode = False
-        global bomb_count
-        bomb_count = 0
+#table_list = [['0'] * column_count].copy() * row_count # TRAP
+table_list =[ [0]*column_count for i in range(row_count)]
+table_list_displaying = [ [0]*column_count for i in range(row_count)]
+
+# code for creating table
+for i in range(row_count):
+    for j in range(column_count):
+        table_list_displaying[i][j] = tk.StringVar()
+        table_objects[i][j] = tk.Entry(root, width=1, fg='blue',
+                    font=('Arial',16,'bold'), textvariable=table_list_displaying[i][j])
+        table_objects[i][j].bind("<Button-1>", callback)
+        table_objects[i][j].grid(row=i, column=j)
+
+#button_colum = math.floor(column_count /2 )
+button_row = row_count + 2
+
+button_new = tk.Button(root, width=1, height=1)
+button_new["text"] = "N"
+button_new["command"] = button_new_event
+button_new.grid(row=button_row, column=0, columnspan=3)
+
+button_calculate = tk.Button(root, width=1, height=1)
+button_calculate["text"] = "C"
+button_calculate["command"] = button_calculate_event
+button_calculate.grid(row=button_row, column=3, columnspan=2)
+
+button_display_aknas = tk.Button(root, width=1, height=1)
+button_display_aknas["text"] = "D"
+button_display_aknas["command"] = display_aknas
+button_display_aknas.grid(row=button_row, column=5, columnspan=2)
+
+button_play = tk.Button(root, width=1, height=1)
+button_play["text"] = "P"
+button_play["command"] = button_play_event
+button_play.grid(row=button_row, column=7, columnspan=2)
+
+button_exit = tk.Button(root, width=1, height=1)
+button_exit["text"] = "X"
+button_exit["command"] = button_exit_event
+button_exit.grid(row=button_row, column=10, columnspan=2)
+
+bomb_count_field = tk.Label(root, height=1)
+bomb_count_field["text"] = "00"
+bomb_count_field.grid(row=button_row+1, column=0, columnspan=column_count)
+
+message_field = tk.Label(root, height=1)
+message_field["text"] = ""
+message_field.grid(row=button_row+2, column=0, columnspan=column_count)
 
 
-    def quit(self):
-        self.master.destroy()
-        exit(0)
 
-
-def start_gui(config=None):
-    global root
-    global app
-
-    root = tk.Tk()
-    root.attributes('-fullscreen', True)
-    app = Application(master=root)
-    root.configure(bg=BACKGROUND_COLOR)
-    app.mainloop()
-
-
-if __name__ == "__main__":
-    start_gui()
+root.mainloop()
 
