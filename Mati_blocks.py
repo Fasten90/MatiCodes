@@ -48,12 +48,15 @@ class NumberTableApp:
 
         if last_empty is not None:
             self.history.append([row[:] for row in self.table])  # Lépés mentése
-            self.table[last_empty][col] = new_number
+            if last_empty > 0 and self.table[last_empty - 1][col] == new_number:
+                self.table[last_empty - 1][col] *= 2
+            else:
+                self.table[last_empty][col] = new_number
         else:
             # Ha az oszlop tele van, csak akkor adja hozzá, ha az alján lévő szám megegyezik
-            if self.table[self.rows-1][col] == new_number:
+            if self.table[self.rows - 1][col] == new_number:
                 self.history.append([row[:] for row in self.table])  # Lépés mentése
-                self.table[self.rows-1][col] *= 2
+                self.table[self.rows - 1][col] *= 2
             else:
                 return  # Ha nem egyezik, nem csinál semmit
 
