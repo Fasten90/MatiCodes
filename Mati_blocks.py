@@ -32,7 +32,10 @@ class NumberTableApp:
         self.number_entry.grid(row=self.rows+1, column=2, columnspan=2)
 
         self.undo_button = tk.Button(root, text="Visszavonás", command=self.undo_last_move)
-        self.undo_button.grid(row=self.rows+2, column=0, columnspan=4)
+        self.undo_button.grid(row=self.rows+2, column=0, columnspan=2)
+
+        self.clear_button = tk.Button(root, text="Törlés", command=self.clear_table)
+        self.clear_button.grid(row=self.rows+2, column=2, columnspan=2)
 
     def add_number_to_column(self, col):
         new_number = int(self.number_var.get())
@@ -47,13 +50,12 @@ class NumberTableApp:
             self.history.append([row[:] for row in self.table])  # Lépés mentése
             self.table[last_empty][col] = new_number
         else:
-            return  # Ha tele van az oszlop, nem csinál semmit
-
-        for row in range(self.rows - 1, 0, -1):  # Ellenőrzi az összevonást
-            if self.table[row][col] is not None and self.table[row][col] == self.table[row - 1][col]:
-                self.table[row - 1][col] *= 2
-                self.table[row][col] = None
-                last_empty = row
+            # Ha az oszlop tele van, csak akkor adja hozzá, ha az alján lévő szám megegyezik
+            if self.table[self.rows-1][col] == new_number:
+                self.history.append([row[:] for row in self.table])  # Lépés mentése
+                self.table[self.rows-1][col] *= 2
+            else:
+                return  # Ha nem egyezik, nem csinál semmit
 
         self.update_display()
         self.generate_new_number()
@@ -71,6 +73,12 @@ class NumberTableApp:
             self.table = self.history.pop()
             self.update_display()
             self.generate_new_number()
+    
+    def clear_table(self):
+        self.history.append([row[:] for row in self.table])  # Lépés mentése
+        self.table = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.update_display()
+        self.generate_new_number()
 
 if __name__ == "__main__":
     root = tk.Tk()
