@@ -23,7 +23,8 @@ class NumberTableApp:
             for c in range(self.cols):
                 self.cells[r][c].grid(row=r+1, column=c)
         
-        self.number_var = tk.StringVar(value=str(random.choice([2, 4, 8, 16, 32, 64])))
+        #self.number_var = tk.StringVar(value=str(random.choice([2, 4, 8, 16, 32, 64])))
+        self.number_var = tk.StringVar(value=str(random.choice([6, 12, 24, 48])))
         tk.Label(root, text="Következő szám:").grid(row=self.rows+1, column=0, columnspan=2)
         self.number_entry = tk.Entry(root, textvariable=self.number_var, font=("Arial", 14))
         self.number_entry.grid(row=self.rows+1, column=2, columnspan=2)
@@ -57,7 +58,8 @@ class NumberTableApp:
                 self.cells[r][c].config(text=str(self.table[r][c]) if self.table[r][c] is not None else "")
     
     def generate_new_number(self):
-        self.number_var.set(str(random.choice([2, 4, 8, 16, 32, 64])))
+        #self.number_var.set(str(random.choice([2, 4, 8, 16, 32, 64])))
+        self.number_var.set(str(random.choice([6, 12, 24, 48])))
 
 if __name__ == "__main__":
     root = tk.Tk()
