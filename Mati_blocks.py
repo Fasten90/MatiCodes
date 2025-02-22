@@ -11,6 +11,7 @@ class NumberTableApp:
         self.rows = 5
         self.cols = 4
         self.table = [[None for _ in range(self.cols)] for _ in range(self.rows)]
+        self.history = []
 
         self.buttons = []
         for col in range(self.cols):
@@ -30,6 +31,9 @@ class NumberTableApp:
         self.number_entry = tk.Entry(root, textvariable=self.number_var, font=("Arial", 14))
         self.number_entry.grid(row=self.rows+1, column=2, columnspan=2)
 
+        self.undo_button = tk.Button(root, text="Visszavonás", command=self.undo_last_move)
+        self.undo_button.grid(row=self.rows+2, column=0, columnspan=4)
+
     def add_number_to_column(self, col):
         new_number = int(self.number_var.get())
         last_empty = None
@@ -40,6 +44,7 @@ class NumberTableApp:
                 break
 
         if last_empty is not None:
+            self.history.append([row[:] for row in self.table])  # Lépés mentése
             self.table[last_empty][col] = new_number
         else:
             return  # Ha tele van az oszlop, nem csinál semmit
@@ -60,6 +65,12 @@ class NumberTableApp:
 
     def generate_new_number(self):
         self.number_var.set(str(random.choice(number_list)))
+
+    def undo_last_move(self):
+        if self.history:
+            self.table = self.history.pop()
+            self.update_display()
+            self.generate_new_number()
 
 if __name__ == "__main__":
     root = tk.Tk()
