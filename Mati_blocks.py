@@ -50,6 +50,7 @@ class NumberTableApp:
             self.history.append([row[:] for row in self.table])  # Lépés mentése
             if last_empty > 0 and self.table[last_empty - 1][col] == new_number:
                 self.table[last_empty - 1][col] *= 2
+                self.merge_upwards(last_empty - 1, col)
             else:
                 self.table[last_empty][col] = new_number
         else:
@@ -57,11 +58,18 @@ class NumberTableApp:
             if self.table[self.rows - 1][col] == new_number:
                 self.history.append([row[:] for row in self.table])  # Lépés mentése
                 self.table[self.rows - 1][col] *= 2
+                self.merge_upwards(self.rows - 1, col)
             else:
                 return  # Ha nem egyezik, nem csinál semmit
 
         self.update_display()
         self.generate_new_number()
+
+    def merge_upwards(self, row, col):
+        while row > 0 and self.table[row][col] == self.table[row - 1][col]:
+            self.table[row - 1][col] *= 2
+            self.table[row][col] = None
+            row -= 1
 
     def update_display(self):
         for r in range(self.rows):
@@ -76,7 +84,7 @@ class NumberTableApp:
             self.table = self.history.pop()
             self.update_display()
             self.generate_new_number()
-    
+
     def clear_table(self):
         self.history.append([row[:] for row in self.table])  # Lépés mentése
         self.table = [[None for _ in range(self.cols)] for _ in range(self.rows)]
