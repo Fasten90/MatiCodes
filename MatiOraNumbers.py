@@ -22,7 +22,8 @@ class TimeCollisionGame:
         self.init_game()
 
     def init_game(self):
-        self.canvas.delete("all")
+        self.reset_game()  # Reset everything before starting new game
+        
         self.finished = False
         self.spawned_count = 0
         self.max_spawns = random.randint(20, 40)
@@ -43,6 +44,16 @@ class TimeCollisionGame:
         self.bind_controls()
         self.spawn_time()
         self.update()
+
+    def reset_game(self):
+        """Reset the game state, clearing all objects and variables."""
+        self.canvas.delete("all")  # Delete everything on the canvas
+        self.level = 1
+        self.player_speed = 10
+        self.spawned_count = 0
+        self.falling_times = []
+        self.wall_objects = []
+        self.wall_times = []
 
     def bind_controls(self):
         self.root.bind("<Left>", lambda e: self.move_player(-self.player_speed, 0))
