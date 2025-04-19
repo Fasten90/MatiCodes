@@ -73,7 +73,6 @@ class TimeCollisionGame:
 
     def spawn_time(self):
         if self.spawned_count < self.max_spawns:
-            # 5–60 perc közötti időtartamokat generálunk
             random_minutes = random.randint(5, 60)
             time_str = minutes_to_time(random_minutes)
             x = random.randint(50, 350)
@@ -88,7 +87,6 @@ class TimeCollisionGame:
         self.wall_times = []
         self.wall_objects = []
 
-        # Falak generálása 1 órás ugrásokkal az elért időhöz viszonyítva
         extra = random.randint(2, 4)
         max_time = self.player_time + (extra * 60)
 
@@ -118,28 +116,42 @@ class TimeCollisionGame:
                 self.falling_times.remove((obj, t_minutes))
 
     def check_wall_collision(self):
-        if not self.wall_objects:
+        if not self.wall_objects or self.finished:
             return
-        last_wall_y = self.canvas.coords(self.wall_objects[-1][0])[1]
-        if last_wall_y >= 300:
-            self.evaluate_wall_result()
 
-    def evaluate_wall_result(self):
+        px, py = self.canvas.coords(self.player)
+        for i, (wall, wall_minutes) in enumerate(self.wall_objects):
+            wx, wy = self.canvas.coords(wall)
+            if abs(px - wx) < 60 and abs(py - wy) < 30:
+                if self.player_time >= wall_minutes:
+                    # Fal áttörve
+                    self.canvas.itemconfig(wall, fill="gray")
+                else:
+                    # Nem tudtunk áttörni → játék vége itt
+                    self.canvas.itemconfig(wall, fill="red")
+                    self.end_game(i)
+                    return
+
+        # Ha minden falon átjutottunk
+        if self.wall_objects[-1][1] <= self.player_time:
+            self.end_game(len(self.wall_objects) - 1)
+
+    def end_game(self, last_reached_index):
         self.finished = True
-        last_reached_index = -1
-        for i, (wall, t) in enumerate(self.wall_objects):
-            if self.player_time >= t:
+
+        total = len(self.wall_objects)
+        for i, (wall, _) in enumerate(self.wall_objects):
+            if i <= last_reached_index and self.player_time >= self.wall_objects[i][1]:
                 self.canvas.itemconfig(wall, fill="gray")
-                last_reached_index = i
-            else:
+            elif i > last_reached_index:
                 self.canvas.itemconfig(wall, fill="red")
 
-        if last_reached_index == len(self.wall_objects) - 1:
+        if last_reached_index == total - 1:
             msg = "🎉 Áttörted az összes falat!"
         elif last_reached_index == -1:
             msg = "😢 Egy falat sem tudtál áttörni."
         else:
-            msg = f"🏁 Áttört falak: {last_reached_index + 1} / {len(self.wall_objects)}"
+            msg = f"🏁 Áttört falak: {last_reached_index + 1} / {total}"
 
         self.canvas.create_text(200, 250, text=msg, fill="yellow", font=("Arial", 18, "bold"))
         self.show_end_buttons()
