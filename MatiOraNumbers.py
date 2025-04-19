@@ -18,38 +18,57 @@ class TimeCollisionGame:
         self.canvas.pack()
 
         self.level = 1
+        self.player_speed = 10
+        self.init_game()
+
+    def init_game(self):
+        self.canvas.delete("all")
+        self.finished = False
         self.spawned_count = 0
         self.max_spawns = random.randint(20, 40)
-        self.finished = False
-
-        self.level_text = self.canvas.create_text(10, 10, anchor='nw', fill='white',
-                                                  text=f"Szint: {self.level}", font=("Arial", 14, "bold"))
-
-        self.player_time = 12  # 00:12 perc
-        self.player = self.canvas.create_text(
-            200, 550, text=minutes_to_time(self.player_time),
-            fill="white", font=("Arial", 24, "bold")
-        )
-        self.player_speed = 10
 
         self.falling_times = []
         self.wall_objects = []
         self.wall_times = []
 
-        self.bind_keys()
+        self.level_text = self.canvas.create_text(10, 10, anchor='nw', fill='white',
+                                                  text=f"Szint: {self.level}", font=("Arial", 14, "bold"))
+
+        self.player_time = 12  # 00:12
+        self.player = self.canvas.create_text(
+            200, 550, text=minutes_to_time(self.player_time),
+            fill="white", font=("Arial", 24, "bold")
+        )
+
+        self.bind_controls()
         self.spawn_time()
         self.update()
 
-    def bind_keys(self):
+    def bind_controls(self):
         self.root.bind("<Left>", lambda e: self.move_player(-self.player_speed, 0))
         self.root.bind("<Right>", lambda e: self.move_player(self.player_speed, 0))
         self.root.bind("<Up>", lambda e: self.move_player(0, -self.player_speed))
         self.root.bind("<Down>", lambda e: self.move_player(0, self.player_speed))
 
+        self.canvas.bind("<Button-1>", self.touch_start)
+        self.canvas.bind("<B1-Motion>", self.touch_move)
+
+        self.last_touch = None
+
+    def touch_start(self, event):
+        self.last_touch = (event.x, event.y)
+
+    def touch_move(self, event):
+        if self.last_touch:
+            dx = event.x - self.last_touch[0]
+            dy = event.y - self.last_touch[1]
+            self.move_player(dx, dy)
+            self.last_touch = (event.x, event.y)
+
     def move_player(self, dx, dy):
         x, y = self.canvas.coords(self.player)
         new_x = max(20, min(380, x + dx))
-        new_y = max(300, min(580, y + dy))  # Alsó fél pálya
+        new_y = max(300, min(580, y + dy))
         self.canvas.coords(self.player, new_x, new_y)
 
     def spawn_time(self):
@@ -67,9 +86,9 @@ class TimeCollisionGame:
     def spawn_wall(self):
         self.wall_times = []
         self.wall_objects = []
-        base_minutes = random.randint(60, 120)  # 1:00 - 2:00
+        base_minutes = random.randint(60, 120)
         for i in range(10):
-            t = base_minutes + i * 30  # 30 perccel nő
+            t = base_minutes + i * 30
             self.wall_times.append(t)
             time_str = minutes_to_time(t)
             y = -60 - i * 40
@@ -93,8 +112,6 @@ class TimeCollisionGame:
     def check_wall_collision(self):
         if not self.wall_objects:
             return
-
-        # Ha már a falak leértek, nézzük meg az eredményt
         last_wall_y = self.canvas.coords(self.wall_objects[-1][0])[1]
         if last_wall_y >= 300:
             self.evaluate_wall_result()
@@ -104,7 +121,7 @@ class TimeCollisionGame:
         passed = 0
         for wall, t in self.wall_objects:
             if self.player_time >= t:
-                self.canvas.itemconfig(wall, fill="gray")  # áttörve
+                self.canvas.itemconfig(wall, fill="gray")
                 passed += 1
             else:
                 self.canvas.itemconfig(wall, fill="red")
@@ -122,45 +139,21 @@ class TimeCollisionGame:
         self.btn_frame = tk.Frame(self.root, bg='black')
         self.btn_frame.place(relx=0.5, rely=0.6, anchor='n')
 
-        tk.Button(self.btn_frame, text="Next Level", font=("Arial", 14),
-                  command=self.next_level).pack(pady=5)
-        tk.Button(self.btn_frame, text="Restart", font=("Arial", 14),
+        tk.Button(self.btn_frame, text="Új pálya", font=("Arial", 14),
+                  command=self.start_new_level).pack(pady=5)
+        tk.Button(self.btn_frame, text="Újrapróbálás", font=("Arial", 14),
                   command=self.restart).pack(pady=5)
-        tk.Button(self.btn_frame, text="Quit", font=("Arial", 14),
+        tk.Button(self.btn_frame, text="Kilépés", font=("Arial", 14),
                   command=self.root.quit).pack(pady=5)
 
-    def next_level(self):
-        self.btn_frame.destroy()
+    def start_new_level(self):
         self.level += 1
-        self.player_time = 12
-        self.canvas.itemconfig(self.player, text=minutes_to_time(self.player_time))
-        self.canvas.itemconfig(self.level_text, text=f"Szint: {self.level}")
-        for wall, _ in self.wall_objects:
-            self.canvas.delete(wall)
-        self.wall_objects.clear()
-        self.wall_times.clear()
-        self.spawned_count = 0
-        self.finished = False
-        for obj, _ in self.falling_times:
-            self.canvas.delete(obj)
-        self.falling_times.clear()
-        self.spawn_time()
+        self.btn_frame.destroy()
+        self.init_game()
 
     def restart(self):
         self.btn_frame.destroy()
-        for wall, _ in self.wall_objects:
-            self.canvas.delete(wall)
-        self.wall_objects.clear()
-        self.wall_times.clear()
-        self.spawned_count = 0
-        self.finished = False
-        self.player_time = 12
-        self.canvas.itemconfig(self.player, text=minutes_to_time(self.player_time))
-        self.canvas.itemconfig(self.level_text, text=f"Szint: {self.level}")
-        for obj, _ in self.falling_times:
-            self.canvas.delete(obj)
-        self.falling_times.clear()
-        self.spawn_time()
+        self.init_game()
 
     def update(self):
         if self.finished:
