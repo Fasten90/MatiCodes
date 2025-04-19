@@ -73,23 +73,31 @@ class TimeCollisionGame:
 
     def spawn_time(self):
         if self.spawned_count < self.max_spawns:
-            random_minutes = random.randint(1, 180)
+            # 5–60 perc közötti időtartamokat generálunk
+            random_minutes = random.randint(5, 60)
             time_str = minutes_to_time(random_minutes)
             x = random.randint(50, 350)
             obj = self.canvas.create_text(x, -30, text=time_str, fill="cyan", font=("Arial", 20, "bold"))
             self.falling_times.append((obj, random_minutes))
             self.spawned_count += 1
-            self.root.after(1200, self.spawn_time)
+            self.root.after(1000, self.spawn_time)
         elif not self.wall_objects:
             self.spawn_wall()
 
     def spawn_wall(self):
         self.wall_times = []
         self.wall_objects = []
-        base_minutes = random.randint(60, 120)
-        for i in range(10):
-            t = base_minutes + i * 30
-            self.wall_times.append(t)
+
+        # Falak generálása 1 órás ugrásokkal az elért időhöz viszonyítva
+        extra = random.randint(2, 4)
+        max_time = self.player_time + (extra * 60)
+
+        current = 0
+        while current <= max_time:
+            self.wall_times.append(current)
+            current += 60
+
+        for i, t in enumerate(self.wall_times):
             time_str = minutes_to_time(t)
             y = -60 - i * 40
             wall = self.canvas.create_text(200, y, text=f"🧱 {time_str} 🧱", fill="orange", font=("Arial", 18, "bold"))
@@ -118,19 +126,20 @@ class TimeCollisionGame:
 
     def evaluate_wall_result(self):
         self.finished = True
-        passed = 0
-        for wall, t in self.wall_objects:
+        last_reached_index = -1
+        for i, (wall, t) in enumerate(self.wall_objects):
             if self.player_time >= t:
                 self.canvas.itemconfig(wall, fill="gray")
-                passed += 1
+                last_reached_index = i
             else:
                 self.canvas.itemconfig(wall, fill="red")
-        if passed == len(self.wall_objects):
-            msg = "🎉 Minden falat áttörtél! Gratulálunk!"
-        elif passed == 0:
+
+        if last_reached_index == len(self.wall_objects) - 1:
+            msg = "🎉 Áttörted az összes falat!"
+        elif last_reached_index == -1:
             msg = "😢 Egy falat sem tudtál áttörni."
         else:
-            msg = f"🏁 Áttört falak: {passed} / {len(self.wall_objects)}"
+            msg = f"🏁 Áttört falak: {last_reached_index + 1} / {len(self.wall_objects)}"
 
         self.canvas.create_text(200, 250, text=msg, fill="yellow", font=("Arial", 18, "bold"))
         self.show_end_buttons()
@@ -139,7 +148,7 @@ class TimeCollisionGame:
         self.btn_frame = tk.Frame(self.root, bg='black')
         self.btn_frame.place(relx=0.5, rely=0.6, anchor='n')
 
-        tk.Button(self.btn_frame, text="Új pálya", font=("Arial", 14),
+        tk.Button(self.btn_frame, text="Következő pálya", font=("Arial", 14),
                   command=self.start_new_level).pack(pady=5)
         tk.Button(self.btn_frame, text="Újrapróbálás", font=("Arial", 14),
                   command=self.restart).pack(pady=5)
