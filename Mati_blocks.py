@@ -1,9 +1,32 @@
 import tkinter as tk
 import random
 
-number_list = [6, 12, 24, 48]
+#number_list = [6, 12, 24, 48]
+number_list = [2, 4, 8, 16, 32, 64]
+
+colour_list = [
+    [1, "#FFC0CB"],   # rózsaszín
+    [2, "#FFA500"],   # narancssárga
+    [4, "#800080"],   # lila
+    [8, "#8B4513"],   # barna
+    [16, "#808080"],  # szürke
+    [32, "#FF0000"],  # piros
+    [64, "#00008B"],  # sötétkék
+    [128, "#FFFF00"], # sárga
+    [256, "#ADD8E6"], # világoskék
+    [512, "#800000"], # bordó
+    [1024, "#90EE90"],# világoszöld
+    [2048, "#006400"],# sötétzöld
+    [4096, "#B22222"],# vörös
+    [8192, "#D8BFD8"],# világoslila
+]
+
+# Gyors kereséshez dictionary
+colour_map = {value: code for value, code in colour_list}
+
 
 class NumberTableApp:
+    # Ezt a sort figyelni kell, a telegramban formázás lesz, a dupla aláhúzás
     def __init__(self, root):
         self.root = root
         self.root.title("Szám táblázat")
@@ -74,7 +97,11 @@ class NumberTableApp:
     def update_display(self):
         for r in range(self.rows):
             for c in range(self.cols):
-                self.cells[r][c].config(text=str(self.table[r][c]) if self.table[r][c] is not None else "")
+                cell_number = self.table[r][c]
+                self.cells[r][c].config(text=str(cell_number) if cell_number is not None else "")
+                if cell_number and isinstance(cell_number, int):
+                    if cell_number in colour_map:
+                        self.cells[r][c].config(fg=colour_map[cell_number])
 
     def generate_new_number(self):
         self.number_var.set(str(random.choice(number_list)))
@@ -91,6 +118,7 @@ class NumberTableApp:
         self.update_display()
         self.generate_new_number()
 
+# Ezt a sort figyelni kell, a telegramban formázás lesz, a dupla aláhúzás
 if __name__ == "__main__":
     root = tk.Tk()
     app = NumberTableApp(root)
