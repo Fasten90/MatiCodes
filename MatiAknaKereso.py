@@ -16,6 +16,8 @@ BACKGROUND_COLOR = 'black'
 row_count = 9
 column_count = 12
 
+random_bomb_creating = 10
+
 # Dynamic variables
 root = None
 
@@ -150,6 +152,27 @@ def button_new_event():
     global bomb_count
     bomb_count = 0
 
+def randomize_bombs():
+    import random
+    global table_list
+    placed_bombs = 0
+    while placed_bombs < random_bomb_creating:
+        row = random.randint(0, row_count - 1)
+        column = random.randint(0, column_count - 1)
+        if table_list[row][column] != BOMB_IN_EDITOR_MODE:
+            table_list[row][column] = BOMB_IN_EDITOR_MODE
+            placed_bombs += 1
+    bomb_count_field["text"] = '{:02}'.format(bomb_count)
+
+
+def button_random_event():
+    print('Random button')
+    clear_table(remove=True)
+    global is_play_mode
+    is_play_mode = False
+    randomize_bombs()
+    global bomb_count
+    bomb_count = random_bomb_creating
 
 def quit():
     root.destroy()
@@ -175,10 +198,17 @@ for i in range(row_count):
 #button_colum = math.floor(column_count /2 )
 button_row = row_count + 2
 
+# MENU
+
 button_new = tk.Button(root, width=1, height=1)
 button_new["text"] = "N"
 button_new["command"] = button_new_event
 button_new.grid(row=button_row, column=0, columnspan=3)
+
+button_calculate = tk.Button(root, width=1, height=1)
+button_calculate["text"] = "R"
+button_calculate["command"] = button_random_event
+button_calculate.grid(row=button_row, column=2, columnspan=2)
 
 button_calculate = tk.Button(root, width=1, height=1)
 button_calculate["text"] = "C"
