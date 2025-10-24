@@ -13,9 +13,8 @@ BOMB_IN_EDITOR_MODE = 'X'
 BACKGROUND_COLOR = 'black'
 
 # Settings (static) variables
-row_count = 2
-column_count = 6
-
+row_count = 9
+column_count = 12
 
 # Dynamic variables
 root = None
@@ -93,8 +92,6 @@ def check_if_finish():
     return True
 
 
-
-
 def button_exit_event():
     print('Exit button')
     quit()
@@ -124,8 +121,8 @@ def display_aknas():
         for j in range(column_count):
             value = table_list[i][j]
             table_list_displaying[i][j].set(value)
- 
- 
+
+
 def clear_table(remove=False):
     # code for creating table
     global  table_list
