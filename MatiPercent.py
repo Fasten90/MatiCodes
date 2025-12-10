@@ -12,10 +12,10 @@ def fut():
 
     for start, end, color in szakaszok:
         for i in range(start, end):
-            fill_height = rh * (i / 100)
-            canvas.coords(rect, x1, y2 - fill_height, x2, y2)
+            fill_width = rw * (i / 100)
+            canvas.coords(rect, x1, y1, x1 + fill_width, y2)
             canvas.itemconfig(rect, fill=color)
-            canvas.itemconfig(text_item, text=str(i) + " %")
+            canvas.itemconfig(text_item, text=str(i) + " %", fill="white")
             root.update()
             time.sleep(1)
 
@@ -47,10 +47,9 @@ y1 = h//2 - rh//2
 x2 = w//2 + rw//2
 y2 = h//2 + rh//2
 
-rect = canvas.create_rectangle(x1, y2, x2, y2, fill="white")
-text_item = canvas.create_text(w//2, h//2, text="", fill="black", font=("Arial", 40))
+rect = canvas.create_rectangle(x1, y1, x1, y2, fill="white")
+text_item = canvas.create_text(w//2, h//2, text="", fill="white", font=("Arial", 40))
 
 fut()
 
 root.mainloop()
-
