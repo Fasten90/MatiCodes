@@ -2,26 +2,27 @@ import tkinter as tk
 import time
 
 def fut():
-    # példa: (kezdő, vég, szín)
-    szakaszok = [
-        (0, 10, "red"),
-        (10, 50, "orange"),
-        (50, 90, "yellow"),
-        (90, 100, "green"),
-    ]
+    while True:
+        # példa: (kezdő, vég, szín)
+        szakaszok = [
+            (0, 10, "red"),
+            (10, 50, "orange"),
+            (50, 90, "#ccaa00"), # darker yellow
+            (90, 100, "green"),
+        ]
 
-    for start, end, color in szakaszok:
-        for i in range(start, end):
-            fill_width = rw * (i / 100)
-            canvas.coords(rect, x1, y1, x1 + fill_width, y2)
-            canvas.itemconfig(rect, fill=color)
-            canvas.itemconfig(text_item, text=str(i) + " %", fill="white")
+        for start, end, color in szakaszok:
+            for i in range(start, end+1):
+                fill_width = rw * (i / 100)
+                canvas.coords(rect, x1, y1, x1 + fill_width, y2)
+                canvas.itemconfig(rect, fill=color)
+                canvas.itemconfig(text_item, text=str(i) + " %", fill="white")
+                root.update()
+                time.sleep(1)
+
+        for _ in range(100):
             root.update()
             time.sleep(1)
-
-    for _ in range(100):
-        root.update()
-        time.sleep(1)
 
 def kilep(event):
     root.destroy()
